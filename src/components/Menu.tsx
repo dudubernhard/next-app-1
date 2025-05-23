@@ -7,6 +7,7 @@ const menuItems = [
   { label: 'Home', href: '/' },
   { label: 'To Do List', href: '/todo' },
   { label: 'Events', href: '/event' },
+  { label: 'Chat Playground', href: '/chat' },
 ];
 
 const Menu = () => {
