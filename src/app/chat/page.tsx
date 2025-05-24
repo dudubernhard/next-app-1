@@ -16,6 +16,12 @@ const LLM_OPTIONS: { label: string; value: LLMModel }[] = [
   { label: 'OpenAI', value: 'openai' },
 ];
 
+// Utility function to detect RTL (Hebrew/Arabic)
+const isRTL = (text: string) => {
+  const rtlChar = /[\u0590-\u05FF\u0600-\u06FF]/;
+  return rtlChar.test(text);
+};
+
 export default observer(function ChatPlayground() {
   const [inputValue, setInputValue] = useState('');
   const [isBotTyping, setIsBotTyping] = useState(false);
@@ -113,6 +119,7 @@ export default observer(function ChatPlayground() {
                         ? 'bg-blue-500 text-white'
                         : 'bg-gray-100 dark:bg-gray-800'
                     }`}
+                    dir={isRTL(message.text) ? 'rtl' : 'ltr'}
                   >
                     <p>{message.text}</p>
                     <p className="text-xs opacity-70 mt-1">
