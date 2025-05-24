@@ -86,18 +86,21 @@ export default observer(function ChatPlayground() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 ">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-100 via-white to-purple-200 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 animate-gradient-x">
       <Menu />
-      <Card className="w-full max-w-4xl mx-auto flex-1 flex flex-col">
+      <Card className="w-full max-w-4xl mx-auto flex-1 flex flex-col shadow-2xl border-2 border-blue-200 dark:border-gray-800 mt-8">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center text-blue-900 dark:text-white">
+          <CardTitle className="text-3xl font-extrabold text-center text-blue-900 dark:text-white tracking-tight drop-shadow-lg">
             Chat Playground
+            <span className="ml-2 text-2xl" role="img" aria-label="chat">
+              💬
+            </span>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col gap-4">
           {errorMessage && (
             <div
-              className="bg-red-100 text-red-800 p-4 rounded mb-2 border border-red-300 flex flex-col animate-shake"
+              className="bg-red-100 text-red-800 p-4 rounded mb-2 border border-red-300 flex flex-col animate-shake shadow-lg"
               role="alert"
               aria-live="assertive"
               tabIndex={0}
@@ -117,7 +120,7 @@ export default observer(function ChatPlayground() {
                   <span role="img" aria-label="llama">
                     🦙
                   </span>{' '}
-                  If you're running locally, don't forget to run{' '}
+                  If you&apos;re running locally, don&apos;t forget to run{' '}
                   <span className="font-mono font-bold">yarn llama</span> in
                   your terminal to start Ollama. Otherwise, the AI will just
                   stare blankly into the void!
@@ -136,7 +139,7 @@ export default observer(function ChatPlayground() {
               id="llm-select"
               value={selectedLLM}
               onChange={(e) => setSelectedLLM(e.target.value as LLMModel)}
-              className="border rounded px-2 py-1 text-sm bg-white dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border rounded px-2 py-1 text-sm bg-white dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 shadow"
               aria-label="Choose LLM"
             >
               {LLM_OPTIONS.map((opt) => (
@@ -146,7 +149,7 @@ export default observer(function ChatPlayground() {
               ))}
             </select>
           </div>
-          <ScrollArea className="flex-1 p-4 border rounded-lg">
+          <ScrollArea className="flex-1 p-4 border rounded-lg bg-white/70 dark:bg-gray-900/70 shadow-inner">
             <div className="space-y-4">
               {chatStore.messages.map((message) => (
                 <div
@@ -156,15 +159,15 @@ export default observer(function ChatPlayground() {
                   }`}
                 >
                   <div
-                    className={`max-w-[80%] p-3 rounded-lg ${
+                    className={`max-w-[80%] p-4 rounded-2xl shadow-lg transition-all duration-300 ${
                       message.sender === 'user'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 dark:bg-gray-800'
-                    }`}
+                        ? 'bg-gradient-to-r from-blue-400 to-purple-400 text-white border-2 border-blue-300'
+                        : 'bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700'
+                    } animate-fade-in`}
                     dir={isRTL(message.text) ? 'rtl' : 'ltr'}
                   >
-                    <p>{message.text}</p>
-                    <p className="text-xs opacity-70 mt-1">
+                    <p className="text-base leading-relaxed">{message.text}</p>
+                    <p className="text-xs opacity-70 mt-1 text-right">
                       {message.timestamp.toLocaleTimeString()}
                     </p>
                   </div>
@@ -172,7 +175,7 @@ export default observer(function ChatPlayground() {
               ))}
               {isBotTyping && (
                 <div className="flex justify-start">
-                  <div className="max-w-[80%] p-3 rounded-lg bg-gray-100 dark:bg-gray-800 opacity-70">
+                  <div className="max-w-[80%] p-3 rounded-lg bg-gray-100 dark:bg-gray-800 opacity-70 animate-pulse">
                     <p className="italic text-gray-500 dark:text-gray-300">
                       Bot is typing…
                     </p>
@@ -182,7 +185,7 @@ export default observer(function ChatPlayground() {
               <div ref={bottomRef} />
             </div>
           </ScrollArea>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-2">
             <Input
               value={inputValue}
               onChange={(e) => {
@@ -191,10 +194,14 @@ export default observer(function ChatPlayground() {
               }}
               onKeyDown={handleKeyDown}
               placeholder="Type your message..."
-              className="flex-1"
+              className="flex-1 border-2 border-blue-200 dark:border-gray-700 shadow focus:ring-2 focus:ring-blue-400"
               aria-label="Type your message"
             />
-            <Button onClick={handleSendMessage} disabled={isBotTyping}>
+            <Button
+              onClick={handleSendMessage}
+              disabled={isBotTyping}
+              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow-lg hover:scale-105 transition-transform"
+            >
               Send
             </Button>
           </div>
