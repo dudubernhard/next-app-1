@@ -1,32 +1,70 @@
 'use client';
 import Menu from '@/components/Menu';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
-type Todo = { id: number; text: string; done: boolean };
+import {
+  fetchTodos,
+  addTodo,
+  updateTodo,
+  deleteTodo,
+  Todo,
+} from '@/lib/todoApi';
 
 const TodoPage = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleAdd = () => {
+  useEffect(() => {
+    setLoading(true);
+    fetchTodos()
+      .then((data) => setTodos(data))
+      .catch(() => setError('Failed to load todos'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleAdd = async () => {
     if (!input.trim()) return;
-    setTodos([...todos, { id: Date.now(), text: input, done: false }]);
-    setInput('');
+    setLoading(true);
+    setError(null);
+    try {
+      const newTodo = await addTodo(input.trim());
+      setTodos((prev) => [newTodo, ...prev]);
+      setInput('');
+    } catch {
+      setError('Failed to add todo');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleToggle = (id: number) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, done: !todo.done } : todo,
-      ),
-    );
+  const handleToggle = async (id: number, completed: boolean) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const updated = await updateTodo(id, !completed);
+      setTodos((prev) => prev.map((todo) => (todo.id === id ? updated : todo)));
+    } catch {
+      setError('Failed to update todo');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRemove = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+  const handleRemove = async (id: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await deleteTodo(id);
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    } catch {
+      setError('Failed to delete todo');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,13 +87,27 @@ const TodoPage = () => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleAdd();
                 }}
+                disabled={loading}
               />
-              <Button onClick={handleAdd} aria-label="Add task" type="button">
+              <Button
+                onClick={handleAdd}
+                aria-label="Add task"
+                type="button"
+                disabled={loading}
+              >
                 Add
               </Button>
             </div>
+            {error && (
+              <div className="text-red-500 text-center mb-2">{error}</div>
+            )}
             <ul className="w-full">
-              {todos.length === 0 && (
+              {loading && (
+                <li className="text-gray-400 dark:text-gray-500 text-center">
+                  Loading...
+                </li>
+              )}
+              {!loading && todos.length === 0 && (
                 <li className="text-gray-400 dark:text-gray-500 text-center">
                   No tasks yet.
                 </li>
@@ -67,28 +119,29 @@ const TodoPage = () => {
                 >
                   <span
                     className={`flex-1 cursor-pointer ${
-                      todo.done ? 'line-through text-gray-400' : ''
+                      todo.completed ? 'line-through text-gray-400' : ''
                     }`}
                     tabIndex={0}
                     aria-label={
-                      todo.done
-                        ? `Mark ${todo.text} as not done`
-                        : `Mark ${todo.text} as done`
+                      todo.completed
+                        ? `Mark ${todo.title} as not done`
+                        : `Mark ${todo.title} as done`
                     }
-                    onClick={() => handleToggle(todo.id)}
+                    onClick={() => handleToggle(todo.id, todo.completed)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ')
-                        handleToggle(todo.id);
+                        handleToggle(todo.id, todo.completed);
                     }}
                   >
-                    {todo.text}
+                    {todo.title}
                   </span>
                   <Button
                     variant="destructive"
                     className="ml-4"
                     onClick={() => handleRemove(todo.id)}
-                    aria-label={`Remove ${todo.text}`}
+                    aria-label={`Remove ${todo.title}`}
                     type="button"
+                    disabled={loading}
                   >
                     Remove
                   </Button>

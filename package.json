@@ -10,6 +10,7 @@
     "llama": "ollama serve"
   },
   "dependencies": {
+    "@prisma/client": "^6.8.2",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-menubar": "^1.1.15",
     "@radix-ui/react-scroll-area": "^1.2.9",
@@ -25,6 +26,7 @@
     "mobx-react-lite": "^4.1.0",
     "next": "15.1.8",
     "openai": "^4.103.0",
+    "prisma": "^6.8.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.3.0",
@@ -38,6 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.8",
     "postcss": "^8",
+    "sqlite3": "^5.1.7",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

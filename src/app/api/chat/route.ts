@@ -12,7 +12,6 @@ export async function POST(req: NextRequest) {
     const reply = await llm.sendMessage(messages);
     return NextResponse.json({ reply });
   } catch (error) {
-    console.error('[API] error', error);
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 }
