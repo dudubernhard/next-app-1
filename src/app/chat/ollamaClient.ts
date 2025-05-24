@@ -1,6 +1,6 @@
 export type OllamaChatRequest = {
   prompt: string;
-  model?: string; // default to 'llama3' if not provided
+  model?: string; // default to 'gemma3:4b' if not provided
 };
 
 export type OllamaChatResponse = {
@@ -9,7 +9,7 @@ export type OllamaChatResponse = {
 
 export const ollamaChat = async ({
   prompt,
-  model = 'llama3',
+  model = 'gemma3:4b',
 }: OllamaChatRequest): Promise<OllamaChatResponse> => {
   const res = await fetch('http://localhost:11434/api/generate', {
     method: 'POST',

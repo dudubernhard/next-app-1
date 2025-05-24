@@ -9,9 +9,10 @@ import { sendMessageToServer } from './client';
 import type { LLMModel } from './client';
 import { observer } from 'mobx-react-lite';
 import { chatStore, ChatMessage } from './chatStore';
+import Menu from '@/components/Menu';
 
 const LLM_OPTIONS: { label: string; value: LLMModel }[] = [
-  { label: 'Llama (Ollama)', value: 'ollama' },
+  { label: 'gemma3:4b (Ollama)', value: 'ollama' },
   { label: 'OpenAI', value: 'openai' },
 ];
 
@@ -67,7 +68,8 @@ export default observer(function ChatPlayground() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-4">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 ">
+      <Menu />
       <Card className="w-full max-w-4xl mx-auto flex-1 flex flex-col">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center text-blue-900 dark:text-white">
