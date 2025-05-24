@@ -7,21 +7,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useState } from 'react';
 import { sendMessageToServer } from './client';
 import type { LLMModel } from './client';
-
-interface Message {
-  id: number;
-  text: string;
-  sender: 'user' | 'bot';
-  timestamp: Date;
-}
+import { observer } from 'mobx-react-lite';
+import { chatStore, ChatMessage } from './chatStore';
 
 const LLM_OPTIONS: { label: string; value: LLMModel }[] = [
   { label: 'Llama (Ollama)', value: 'ollama' },
   { label: 'OpenAI', value: 'openai' },
 ];
 
-export default function ChatPlayground() {
-  const [messages, setMessages] = useState<Message[]>([]);
+export default observer(function ChatPlayground() {
   const [inputValue, setInputValue] = useState('');
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [selectedLLM, setSelectedLLM] = useState<LLMModel>('ollama');
@@ -29,27 +23,27 @@ export default function ChatPlayground() {
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
-    const userMessage: Message = {
+    const userMessage: ChatMessage = {
       id: Date.now(),
       text: inputValue,
       sender: 'user',
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    chatStore.addMessage(userMessage);
     setInputValue('');
     setIsBotTyping(true);
 
     try {
-      const reply = await sendMessageToServer(userMessage.text, selectedLLM);
+      const reply = await sendMessageToServer(chatStore.messages, selectedLLM);
       if (reply) {
-        const botMessage: Message = {
+        const botMessage: ChatMessage = {
           id: Date.now() + 1,
           text: reply,
           sender: 'bot',
           timestamp: new Date(),
         };
-        setMessages((prev) => [...prev, botMessage]);
+        chatStore.addMessage(botMessage);
       } else {
         // Optionally handle error
       }
@@ -99,7 +93,7 @@ export default function ChatPlayground() {
           </div>
           <ScrollArea className="flex-1 p-4 border rounded-lg">
             <div className="space-y-4">
-              {messages.map((message) => (
+              {chatStore.messages.map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${
@@ -148,4 +142,4 @@ export default function ChatPlayground() {
       </Card>
     </div>
   );
-}
+});

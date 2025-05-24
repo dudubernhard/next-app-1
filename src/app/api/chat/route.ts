@@ -4,12 +4,12 @@ import type { LLMModel } from '@/lib/ai/types';
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, model = 'openai' } = await req.json();
-    if (typeof message !== 'string' || !message.trim()) {
-      return NextResponse.json({ error: 'Invalid message' }, { status: 400 });
+    const { messages, model = 'ollama' } = await req.json();
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json({ error: 'Invalid messages' }, { status: 400 });
     }
     const llm = getLLM(model as LLMModel);
-    const reply = await llm.sendMessage(message);
+    const reply = await llm.sendMessage(messages);
     return NextResponse.json({ reply });
   } catch (error) {
     console.error('[API] error', error);
