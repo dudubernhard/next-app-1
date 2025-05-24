@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useState } from 'react';
 import { sendMessageToServer } from './client';
+import type { LLMModel } from './client';
 
 interface Message {
   id: number;
@@ -14,10 +15,16 @@ interface Message {
   timestamp: Date;
 }
 
+const LLM_OPTIONS: { label: string; value: LLMModel }[] = [
+  { label: 'Llama (Ollama)', value: 'ollama' },
+  { label: 'OpenAI', value: 'openai' },
+];
+
 export default function ChatPlayground() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isBotTyping, setIsBotTyping] = useState(false);
+  const [selectedLLM, setSelectedLLM] = useState<LLMModel>('ollama');
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
@@ -34,7 +41,7 @@ export default function ChatPlayground() {
     setIsBotTyping(true);
 
     try {
-      const reply = await sendMessageToServer(userMessage.text);
+      const reply = await sendMessageToServer(userMessage.text, selectedLLM);
       if (reply) {
         const botMessage: Message = {
           id: Date.now() + 1,
@@ -69,6 +76,27 @@ export default function ChatPlayground() {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col gap-4">
+          <div className="flex items-center gap-2 mb-2">
+            <label
+              htmlFor="llm-select"
+              className="text-sm font-medium text-gray-700 dark:text-gray-200"
+            >
+              LLM:
+            </label>
+            <select
+              id="llm-select"
+              value={selectedLLM}
+              onChange={(e) => setSelectedLLM(e.target.value as LLMModel)}
+              className="border rounded px-2 py-1 text-sm bg-white dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+              aria-label="Choose LLM"
+            >
+              {LLM_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <ScrollArea className="flex-1 p-4 border rounded-lg">
             <div className="space-y-4">
               {messages.map((message) => (

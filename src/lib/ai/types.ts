@@ -8,4 +8,4 @@ export interface LLMProvider {
   readonly name: string;
 }
 
-export type LLMModel = 'openai' | 'claude' | 'gemini';
+export type LLMModel = 'openai' | 'ollama' | 'claude' | 'gemini';
