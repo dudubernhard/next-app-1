@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { sendMessageToServer } from './client';
 import type { LLMModel } from './client';
 import { observer } from 'mobx-react-lite';
@@ -19,6 +19,11 @@ export default observer(function ChatPlayground() {
   const [inputValue, setInputValue] = useState('');
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [selectedLLM, setSelectedLLM] = useState<LLMModel>('ollama');
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatStore.messages.length]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
@@ -123,6 +128,7 @@ export default observer(function ChatPlayground() {
                   </div>
                 </div>
               )}
+              <div ref={bottomRef} />
             </div>
           </ScrollArea>
           <div className="flex gap-2">
