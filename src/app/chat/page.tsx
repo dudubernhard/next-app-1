@@ -26,7 +26,13 @@ export default observer(function ChatPlayground() {
   const [inputValue, setInputValue] = useState('');
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [selectedLLM, setSelectedLLM] = useState<LLMModel>('ollama');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const isLocalhost =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1');
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -45,6 +51,7 @@ export default observer(function ChatPlayground() {
     chatStore.addMessage(userMessage);
     setInputValue('');
     setIsBotTyping(true);
+    setErrorMessage(null);
 
     try {
       const reply = await sendMessageToServer(chatStore.messages, selectedLLM);
@@ -56,11 +63,16 @@ export default observer(function ChatPlayground() {
           timestamp: new Date(),
         };
         chatStore.addMessage(botMessage);
+        setErrorMessage(null);
       } else {
-        // Optionally handle error
+        setErrorMessage(
+          "Oops! Our AI brain (Ollama) is taking a nap or lost in thought. Please try again when it's back from its coffee break!",
+        );
       }
     } catch {
-      // Optionally handle error
+      setErrorMessage(
+        "Yikes! The LLM failed to respond. Maybe Ollama isn't running, or the server is on vacation. Try again in a bit!",
+      );
     } finally {
       setIsBotTyping(false);
     }
@@ -83,6 +95,36 @@ export default observer(function ChatPlayground() {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col gap-4">
+          {errorMessage && (
+            <div
+              className="bg-red-100 text-red-800 p-4 rounded mb-2 border border-red-300 flex flex-col animate-shake"
+              role="alert"
+              aria-live="assertive"
+              tabIndex={0}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className="flex-1">{errorMessage}</span>
+                <button
+                  className="ml-4 underline text-blue-600 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 rounded px-2 py-1"
+                  onClick={handleSendMessage}
+                  aria-label="Retry sending message"
+                >
+                  Retry
+                </button>
+              </div>
+              {isLocalhost && (
+                <div className="mt-2 text-sm text-blue-700 bg-blue-50 rounded p-2 border border-blue-200">
+                  <span role="img" aria-label="llama">
+                    🦙
+                  </span>{' '}
+                  If you're running locally, don't forget to run{' '}
+                  <span className="font-mono font-bold">yarn llama</span> in
+                  your terminal to start Ollama. Otherwise, the AI will just
+                  stare blankly into the void!
+                </div>
+              )}
+            </div>
+          )}
           <div className="flex items-center gap-2 mb-2">
             <label
               htmlFor="llm-select"
@@ -143,7 +185,10 @@ export default observer(function ChatPlayground() {
           <div className="flex gap-2">
             <Input
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={(e) => {
+                setInputValue(e.target.value);
+                if (errorMessage) setErrorMessage(null);
+              }}
               onKeyDown={handleKeyDown}
               placeholder="Type your message..."
               className="flex-1"
